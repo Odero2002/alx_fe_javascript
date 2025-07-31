@@ -179,4 +179,4 @@ createAddQuoteForm();
 // --- Add UI for import/export ---
 document.getElementById('importFile').onchange = importFromJsonFile;
 document.getElementById('exportQuotesBtn').onclick = exportQuotesToJson;
-categoryFilter.onchange = filterQuotes;
+categoryFilter.onchange(selectedCategory)= filterQuotes;
