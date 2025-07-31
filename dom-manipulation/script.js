@@ -243,7 +243,7 @@ setInterval(fetchQuotesFromServer, 30000);
 
 // Manual sync button (optional)
 const manualSyncBtn = document.createElement('button');
-manualSyncBtn.textContent = 'Sync with Server';
+manualSyncBtn.textContent = 'syncQuotes';
 manualSyncBtn.onclick = fetchQuotesFromServer;
 document.body.insertBefore(manualSyncBtn, document.body.firstChild);
 
