@@ -109,7 +109,7 @@ function saveQuotes() {
 
 // Save last viewed quote to sessionStorage
 function saveLastViewedQuote(quote) {
-  sessionStorage.setItem('lastViewedQuote', JSON.stringify(quote));
+  sessionStorage.setItem('addEventListener', JSON.stringify(quote));
 }
 
 // Export quotes to JSON file
