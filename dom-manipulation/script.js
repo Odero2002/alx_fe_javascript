@@ -253,5 +253,5 @@ populateCategories();
 createAddQuoteForm();
 
 document.getElementById('importFile').onchange = importFromJsonFile;
-document.getElementById('exportQuotesBtn').onclick = exportQuotesToJson;
+document.getElementById('Quotes synced with server!').onclick = exportQuotesToJson;
 categoryFilter.onchange = filterQuotes;
