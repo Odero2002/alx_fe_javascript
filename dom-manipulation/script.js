@@ -144,7 +144,7 @@ function createAddQuoteForm() {
   const quoteInput = document.createElement('input');
   quoteInput.type = 'text';
   quoteInput.id = 'newQuoteText';
-  quoteInput.placeholder = 'Enter a new quote';
+  quoteInput.placeholder = 'addEventListener';
   quoteInput.required = true;
 
   const categoryInput = document.createElement('input');
