@@ -171,12 +171,87 @@ function importFromJsonFile(event) {
   fileReader.readAsText(event.target.files[0]);
 }
 
+// --- Server Sync Simulation ---
+
+const SERVER_URL = 'https://jsonplaceholder.typicode.com/posts'; // Example endpoint
+
+// Simulate fetching quotes from server
+async function fetchQuotesFromServer() {
+  try {
+    // Replace with your real API if available
+    const response = await fetch(SERVER_URL);
+    const serverData = await response.json();
+    // Simulate server quotes structure
+    const serverQuotes = serverData.map(post => ({
+      text: post.title,
+      category: post.body ? post.body.split(' ')[0] : 'General'
+    }));
+    resolveConflicts(serverQuotes);
+  } catch (err) {
+    notifyUser('Failed to sync with server.');
+  }
+}
+
+// Simulate posting local quotes to server
+async function postQuotesToServer() {
+  try {
+    await fetch(SERVER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(quotes)
+    });
+    notifyUser('Local quotes synced to server.');
+  } catch (err) {
+    notifyUser('Failed to post quotes to server.');
+  }
+}
+
+// Conflict resolution: server data takes precedence
+function resolveConflicts(serverQuotes) {
+  let conflicts = false;
+  // If server quotes differ, replace local and notify
+  if (JSON.stringify(serverQuotes) !== JSON.stringify(quotes)) {
+    quotes = serverQuotes;
+    saveQuotes();
+    populateCategories();
+    filterQuotes();
+    conflicts = true;
+  }
+  if (conflicts) {
+    notifyUser('Quotes updated from server (server data used).');
+  }
+}
+
+// Notification UI
+function notifyUser(message) {
+  let note = document.getElementById('syncNotification');
+  if (!note) {
+    note = document.createElement('div');
+    note.id = 'syncNotification';
+    note.style.background = '#ffeeba';
+    note.style.border = '1px solid #ffc107';
+    note.style.padding = '8px';
+    note.style.margin = '10px 0';
+    document.body.insertBefore(note, document.body.firstChild);
+  }
+  note.textContent = message;
+  setTimeout(() => { note.textContent = ''; }, 4000);
+}
+
+// Periodic sync (every 30 seconds)
+setInterval(fetchQuotesFromServer, 30000);
+
+// Manual sync button (optional)
+const manualSyncBtn = document.createElement('button');
+manualSyncBtn.textContent = 'Sync with Server';
+manualSyncBtn.onclick = fetchQuotesFromServer;
+document.body.insertBefore(manualSyncBtn, document.body.firstChild);
+
 // --- Initial setup ---
 loadQuotes();
 populateCategories();
 createAddQuoteForm();
 
-// --- Add UI for import/export ---
 document.getElementById('importFile').onchange = importFromJsonFile;
 document.getElementById('exportQuotesBtn').onclick = exportQuotesToJson;
-categoryFilter.onchange(selectedCategory)= filterQuotes;
+categoryFilter.onchange = filterQuotes;
