@@ -1,39 +1,61 @@
 // Initial quotes array
-let quotes = [
-  { text: "The best way to get started is to quit talking and begin doing.", category: "Motivation" },
-  { text: "Life is what happens when you're busy making other plans.", category: "Life" },
-  { text: "Success is not final, failure is not fatal: It is the courage to continue that counts.", category: "Success" },
-];
+let quotes = [];
+let filtered = [];
 
 // Get DOM elements
 const quoteDisplay = document.getElementById('quoteDisplay');
-const newQuoteBtn = document.getElementById('newQuote');
+const categoryFilter = document.getElementById('categoryFilter');
 const categorySelect = document.getElementById('categorySelect');
 const addQuoteFormDiv = document.getElementById('addQuoteForm');
 
-// Helper: Get unique categories
+// Get unique categories from quotes
 function getCategories() {
-  const cats = quotes.map(q => q.category);
-  return [...new Set(cats)];
+  const categories = new Set(quotes.map(q => q.category));
+  return Array.from(categories);
 }
 
-// Display categories in select
+// Populate both category dropdowns
 function populateCategories() {
+  // For filter dropdown
+  categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+  getCategories().forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = cat;
+    categoryFilter.appendChild(opt);
+  });
+
+  // For add/select dropdown
   categorySelect.innerHTML = '';
   getCategories().forEach(cat => {
-    const option = document.createElement('option');
-    option.value = cat;
-    option.textContent = cat;
-    categorySelect.appendChild(option);
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = cat;
+    categorySelect.appendChild(opt);
   });
+
+  // Restore last filter from localStorage
+  const lastFilter = localStorage.getItem('lastCategoryFilter');
+  if (lastFilter) categoryFilter.value = lastFilter;
+  filterQuotes();
 }
 
-// Show a random quote from selected category
+// Filter quotes based on selected category
+function filterQuotes() {
+  const selected = categoryFilter.value;
+  localStorage.setItem('lastCategoryFilter', selected);
+  if (selected === 'all') {
+    filtered = quotes;
+  } else {
+    filtered = quotes.filter(q => q.category === selected);
+  }
+  showRandomQuote();
+}
+
+// Show a random quote from filtered list
 function showRandomQuote() {
-  const selectedCat = categorySelect.value;
-  const filtered = quotes.filter(q => q.category === selectedCat);
-  if (filtered.length === 0) {
-    quoteDisplay.textContent = "No quotes in this category.";
+  if (!filtered || filtered.length === 0) {
+    quoteDisplay.textContent = 'No quotes available for this category.';
     return;
   }
   const random = filtered[Math.floor(Math.random() * filtered.length)];
@@ -82,7 +104,7 @@ function addQuote() {
     saveQuotes(); // Save to localStorage
     populateCategories();
     categorySelect.value = category;
-    showRandomQuote();
+    filterQuotes();
     document.getElementById('newQuoteText').value = '';
     document.getElementById('newQuoteCategory').value = '';
   }
@@ -109,7 +131,7 @@ function saveQuotes() {
 
 // Save last viewed quote to sessionStorage
 function saveLastViewedQuote(quote) {
-  sessionStorage.setItem('addEventListener', JSON.stringify(quote));
+  sessionStorage.setItem('lastViewedQuote', JSON.stringify(quote));
 }
 
 // Export quotes to JSON file
@@ -137,7 +159,7 @@ function importFromJsonFile(event) {
         quotes.push(...importedQuotes);
         saveQuotes();
         populateCategories();
-        showRandomQuote();
+        filterQuotes();
         alert('Quotes imported successfully!');
       } else {
         alert('Invalid JSON format.');
@@ -155,15 +177,6 @@ populateCategories();
 createAddQuoteForm();
 
 // --- Add UI for import/export ---
-const importInput = document.createElement('input');
-importInput.type = 'file';
-importInput.id = 'importFile';
-importInput.accept = '.json';
-importInput.onchange = importFromJsonFile;
-
-const exportBtn = document.createElement('button');
-exportBtn.textContent = 'Export Quotes (JSON)';
-exportBtn.onclick = exportQuotesToJson;
-
-document.body.appendChild(importInput);
-document.body.appendChild(exportBtn);
+document.getElementById('importFile').onchange = importFromJsonFile;
+document.getElementById('exportQuotesBtn').onclick = exportQuotesToJson;
+categoryFilter.onchange = filterQuotes;
